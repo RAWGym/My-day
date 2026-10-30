@@ -24,7 +24,7 @@ android {
 
         buildConfigField("String", "SUPABASE_URL", "\"https://oehoivwmdhjmxvmdllky.supabase.co\"")
         buildConfigField("String", "SUPABASE_KEY", "\"sb_publishable_2-an-LriBPJgh6v7VSqleQ_Gqyftb6O\"")
-        buildConfigField("String", "UPDATE_REPO", "\"RAWGym/moy-den\"")
+        buildConfigField("String", "UPDATE_REPO", "\"RAWGym/My-day\"")
     }
 
     signingConfigs {
