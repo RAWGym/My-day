@@ -68,7 +68,7 @@ val PALETTES = listOf(
     Palette("night", "Ночь", true, Color(0xFF0F1520), Color(0xFF18202E), Color(0xFF232D3E),
         Color(0xFF7FA7E0), Color(0xFF0F1520), Color(0xFFE8EEF7), Color(0xFF93A1B5),
         Color(0xFF86C08E), Color(0xFFE88A78), Color(0xFFB9A3E3), Color(0xFFE2B66E)),
-    Palette("contrast", "Контрастная", false, Color(0xFFFFFFFF), Color(0xFFF3F3F3), Color(0xFFE2E2E2),
+    Palette("contrast", "Контраст", false, Color(0xFFFFFFFF), Color(0xFFF3F3F3), Color(0xFFE2E2E2),
         Color(0xFF1A4FD0), Color(0xFFFFFFFF), Color(0xFF000000), Color(0xFF3D3D3D),
         Color(0xFF1C7A2E), Color(0xFFC21E1E), Color(0xFF6A2FB0), Color(0xFF00647A)),
 )

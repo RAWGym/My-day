@@ -45,10 +45,16 @@ class UiFlowTest {
     @get:Rule val rule = createEmptyComposeRule()
     private val out = File(System.getProperty("user.dir"), "build/shots").apply { mkdirs() }
 
+    private var scenario: ActivityScenario<MainActivity>? = null
+
     private fun shot(name: String) {
         rule.waitForIdle()
-        val bmp = rule.onRoot().captureToImage().asAndroidBitmap()
-        File(out, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        scenario!!.onActivity { a ->
+            val v = a.window.decorView
+            val bmp = Bitmap.createBitmap(v.width, v.height, Bitmap.Config.ARGB_8888)
+            v.draw(android.graphics.Canvas(bmp))
+            File(out, "$name.png").outputStream().use { bmp.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        }
     }
 
     private fun seed(ctx: Context) {
@@ -84,7 +90,8 @@ class UiFlowTest {
     @Test fun mainFlow() {
         val ctx = ApplicationProvider.getApplicationContext<Context>()
         seed(ctx)
-        ActivityScenario.launch(MainActivity::class.java).use {
+        ActivityScenario.launch(MainActivity::class.java).use { sc ->
+            scenario = sc
             rule.onNodeWithText("Дела на сегодня").assertExists()
             shot("01_today")
             rule.onNodeWithText("Запись к врачу").performScrollTo()
@@ -107,20 +114,20 @@ class UiFlowTest {
             shot("07_debts")
             rule.onNodeWithText("Ещё").performClick()
             shot("08_more")
-            rule.onNodeWithText("Оформление").performClick()
+            rule.onNodeWithText("Оформление").performScrollTo().performClick()
             shot("09_appearance")
             rule.onNodeWithText("Графит").performClick()
             rule.onNodeWithContentDescription("Назад").performClick()
-            rule.onNodeWithText("Уведомления и звук").performClick()
+            rule.onNodeWithText("Уведомления и звук").performScrollTo().performClick()
             shot("10_notifications")
             rule.onNodeWithContentDescription("Назад").performClick()
-            rule.onNodeWithText("Проверка напоминаний").performClick()
+            rule.onNodeWithText("Проверка напоминаний").performScrollTo().performClick()
             shot("11_health")
             rule.onNodeWithContentDescription("Назад").performClick()
-            rule.onNodeWithText("Войти в аккаунт").performClick()
+            rule.onNodeWithText("Войти в аккаунт").performScrollTo().performClick()
             shot("12_account")
             rule.onNodeWithContentDescription("Назад").performClick()
-            rule.onNodeWithText("Обновления").performClick()
+            rule.onNodeWithText("Обновления").performScrollTo().performClick()
             shot("13_updates")
             rule.onNodeWithContentDescription("Назад").performClick()
             rule.onNodeWithText("Сегодня").performClick()
