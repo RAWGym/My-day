@@ -53,27 +53,24 @@ object Updater {
         _state.value = UpdateState.Checking
         exec.execute {
             try {
-                val c = URL("https://api.github.com/repos/${BuildConfig.UPDATE_REPO}/releases/latest")
+                // updates/latest.json in the repo: {"version", "notes", "apk", "size"}
+                val base = "https://raw.githubusercontent.com/${BuildConfig.UPDATE_REPO}/main/updates/"
+                val c = URL(base + "latest.json?t=" + System.currentTimeMillis() / 60000)
                     .openConnection() as HttpURLConnection
-                c.setRequestProperty("Accept", "application/vnd.github+json")
+                c.useCaches = false
                 c.connectTimeout = 15000; c.readTimeout = 15000
                 if (c.responseCode == 404) { _state.value = UpdateState.UpToDate; return@execute }
                 if (c.responseCode !in 200..299) throw Exception("HTTP ${c.responseCode}")
                 val o = JSONObject(c.inputStream.bufferedReader().use { it.readText() })
                 c.disconnect()
                 sp.edit().putLong("lastCheck", System.currentTimeMillis()).apply()
-                val tag = o.optString("tag_name")
-                val assets = o.optJSONArray("assets")
-                var url = ""; var size = 0L
-                if (assets != null) for (i in 0 until assets.length()) {
-                    val a = assets.getJSONObject(i)
-                    if (a.optString("name").endsWith(".apk")) {
-                        url = a.optString("browser_download_url"); size = a.optLong("size")
-                    }
-                }
+                val version = o.optString("version").removePrefix("v")
+                val apk = o.optString("apk")
+                val url = if (apk.startsWith("http")) apk else base + apk
+                val tag = "v$version"
                 val skipped = sp.getString("skipped", "")
-                _state.value = if (url.isNotEmpty() && isNewer(tag) && !(auto && skipped == tag))
-                    UpdateState.Available(Release(tag.removePrefix("v"), o.optString("body"), url, size))
+                _state.value = if (apk.isNotEmpty() && isNewer(version) && !(auto && skipped == tag))
+                    UpdateState.Available(Release(version, o.optString("notes"), url, o.optLong("size")))
                 else UpdateState.UpToDate
             } catch (e: Exception) {
                 _state.value = if (auto) UpdateState.Idle else UpdateState.Failed("Не удалось проверить обновления. Проверьте интернет")
